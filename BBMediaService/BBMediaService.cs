@@ -15,6 +15,8 @@ namespace BBMediaService
         public BBMediaService()
         {
             InitializeComponent();
+
+            //specify log info
             eventLog.Source = "BBMediaService Class";
             eventLog.Log = "BB Media Service";
         }
