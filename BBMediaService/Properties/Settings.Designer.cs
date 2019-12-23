@@ -58,5 +58,14 @@ namespace BBMediaService.Properties {
                 return ((string)(this["IRDBName"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("USB-SERIAL CH340")]
+        public string SupportedBoards {
+            get {
+                return ((string)(this["SupportedBoards"]));
+            }
+        }
     }
 }

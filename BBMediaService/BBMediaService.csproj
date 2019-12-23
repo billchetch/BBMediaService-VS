@@ -32,6 +32,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Chetch.Arduino">
+      <HintPath>..\..\..\Libraries\Arduino\Arduino\bin\Debug\Chetch.Arduino.dll</HintPath>
+    </Reference>
+    <Reference Include="Chetch.Database">
+      <HintPath>..\..\..\Libraries\Database\Database\bin\Debug\Chetch.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="Chetch.Utilities">
+      <HintPath>..\..\..\Libraries\Utilities\Utilities\bin\Debug\Chetch.Utilities.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />

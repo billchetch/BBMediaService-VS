@@ -14,5 +14,8 @@
     <Setting Name="IRDBName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">infrared</Value>
     </Setting>
+    <Setting Name="SupportedBoards" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">USB-SERIAL CH340</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
