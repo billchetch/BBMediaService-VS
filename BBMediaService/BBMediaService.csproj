@@ -32,11 +32,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Chetch.Application, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Libraries\Application\Application\bin\Debug\Chetch.Application.dll</HintPath>
+    </Reference>
     <Reference Include="Chetch.Arduino">
       <HintPath>..\..\..\Libraries\Arduino\Arduino\bin\Debug\Chetch.Arduino.dll</HintPath>
     </Reference>
     <Reference Include="Chetch.Database">
       <HintPath>..\..\..\Libraries\Database\Database\bin\Debug\Chetch.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="Chetch.Messaging">
+      <HintPath>..\..\..\Libraries\Messaging\Messaging\bin\Debug\Chetch.Messaging.dll</HintPath>
     </Reference>
     <Reference Include="Chetch.Services">
       <HintPath>..\..\..\Libraries\Services\Services\bin\Debug\Chetch.Services.dll</HintPath>
@@ -61,16 +68,10 @@
     <Compile Include="BBMediaService.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="BBMediaService.Designer.cs">
-      <DependentUpon>BBMediaService.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="ProjectInstaller.cs">
+    <Compile Include="BBMSInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ProjectInstaller.Designer.cs">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -79,19 +80,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="BBMediaService.resx">
-      <DependentUpon>BBMediaService.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ProjectInstaller.resx">
-      <DependentUpon>ProjectInstaller.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
