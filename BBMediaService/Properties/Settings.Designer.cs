@@ -52,19 +52,19 @@ namespace BBMediaService.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("infrared")]
-        public string IRDBName {
+        [global::System.Configuration.DefaultSettingValueAttribute("USB-SERIAL CH340")]
+        public string SupportedBoards {
             get {
-                return ((string)(this["IRDBName"]));
+                return ((string)(this["SupportedBoards"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("USB-SERIAL CH340")]
-        public string SupportedBoards {
+        [global::System.Configuration.DefaultSettingValueAttribute("infraredxxx")]
+        public string DBName {
             get {
-                return ((string)(this["SupportedBoards"]));
+                return ((string)(this["DBName"]));
             }
         }
     }
