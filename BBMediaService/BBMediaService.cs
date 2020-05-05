@@ -52,8 +52,10 @@ namespace BBMediaService
 
             commandHelp.Add("list-transmitters:  Lists all IR transmitters in the IR database");
             commandHelp.Add("set-transmitter:  Set generic transmitter to use commands for <database id>");
+            commandHelp.Add("set-receiver:  Set generic receiver to save commands for <database id>");
             commandHelp.Add("start-recording:  Start recording IR input for <command>");
             commandHelp.Add("stop-recording:  Stop recording IR input");
+            commandHelp.Add("list-ircodes:  List IR codes so far processed");
             commandHelp.Add("save-ircodes:  Save recorded IR codes (can add <uknown?> to process unkonwn commands)");
         }
 
