@@ -11,11 +11,8 @@
     <Setting Name="DBPassword" Type="System.String" Scope="Application">
       <Value Profile="(Default)">8+OGNamziK4Jb5R40QYQ4Q==</Value>
     </Setting>
-    <Setting Name="SupportedBoards" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">USB-SERIAL CH340</Value>
-    </Setting>
     <Setting Name="DBName" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">infraredxxx</Value>
+      <Value Profile="(Default)">infrared</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Chetch.Services;
 using Chetch.Arduino;
-using Chetch.Arduino.Infrared;
+using Chetch.Arduino.Devices.Infrared;
 using Chetch.Messaging;
 using System.Diagnostics;
 
@@ -13,14 +13,18 @@ namespace BBMediaService
 {
     class BBMediaService : ADMService
     {
-        IRGenericTransmitter _irt1;
-        IRGenericReceiver _irr1;
+        IRGenericTransmitter _irt;
+        IRGenericReceiver _irr;
+
+        IRSamsungTV _sstv;
+        IRLGHomeTheater _lght1;
+        IRLGHomeTheater _lght2;
 
         private IRDB _irdb;
 
         public BBMediaService() : base("BBMS", "BBMSClient", "BBMediaService", "BBMediaServiceLog")
         {
-            SupportedBoards = Properties.Settings.Default.SupportedBoards;
+            SupportedBoards = ArduinoDeviceManager.DEFAULT_BOARD_SET;
             try
             {
                 Tracing?.TraceEvent(TraceEventType.Information, 0, "Connecting to IR database...");
@@ -34,16 +38,22 @@ namespace BBMediaService
             }
         }
 
-        override protected void AddADMDevices(ADMMessage message)
+        override protected void AddADMDevices(ArduinoDeviceManager adm, ADMMessage message)
         {
-            int irTransmitPin = message.GetInt("IRTransmitPin");
-            int irReceivePin = message.GetInt("IRReceivePin");
+            _irt = new IRGenericTransmitter("irt", "IRT", 3, ArduinoPin.BOARD_SPECIFIED, _irdb);
+            adm.AddDevice(_irt);
 
-            _irt1 = new IRGenericTransmitter("irt1", "Generic IR Transmitter", 5, irTransmitPin, _irdb);
-            ADM.AddDevice(_irt1);
+            _irr = new IRGenericReceiver("irr", "IRR", 4, _irdb);
+            adm.AddDevice(_irr);
 
-            _irr1 = new IRGenericReceiver("irr1", "Generic IR Receiver", irReceivePin, _irdb);
-            ADM.AddDevice(_irr1);
+            _sstv = new IRSamsungTV("sstv", 5, ArduinoPin.BOARD_SPECIFIED, _irdb);
+            adm.AddDevice(_sstv);
+
+            _lght1 = new IRLGHomeTheater("lght1", 6, ArduinoPin.BOARD_SPECIFIED, _irdb);
+            adm.AddDevice(_lght1);
+
+            _lght2 = new IRLGHomeTheater("lght2", 7, ArduinoPin.BOARD_SPECIFIED, _irdb);
+            adm.AddDevice(_lght2);
         }
 
         public override void AddCommandHelp(List<string> commandHelp)
@@ -61,13 +71,13 @@ namespace BBMediaService
 
         override public bool HandleCommand(Connection cnn, Message message, String cmd, List<Object> args, Message response)
         {
+
             switch (cmd)
             {
                 case "list-transmitters":
                     var devs = _irdb.SelectDevices();
                     var l = devs.Select(i => String.Format("{0}: {1} - {2} - {3}", i.ID, i["device_name"], i["device_type"], i["manufacturer"])).ToList();
                     response.AddValue("Transmitters", l);
-                    response.AddValue("GenericTransmitter", _irt1.Name);
                     return true;
 
                 case "set-transmitter":
@@ -85,13 +95,13 @@ namespace BBMediaService
                             var name = dev["device_name"].ToString();
                             if (cmd == "set-transmitter")
                             {
-                                _irt1.Name = name;
-                                response.AddValue("GenericTransmitter", _irt1.Name);
+                                _irt.DeviceName = name;
+                                response.AddValue("GenericTransmitter", _irt.DeviceName);
                             }
                             else
                             {
-                                _irr1.Name = name;
-                                response.AddValue("GenericReceiver", _irr1.Name);
+                                _irr.DeviceName = name;
+                                response.AddValue("GenericReceiver", _irr.DeviceName);
                             }
                             break;
                         }
@@ -99,47 +109,49 @@ namespace BBMediaService
                     return true;
 
                 case "start-recording":
+                    if (!_irr.IsConnected) throw new Exception(String.Format("Command {0} cannot be executed because receiver is not connected", cmd));
+
                     if (args.Count == 0)
                     {
                         throw new Exception("No command name provided");
                     }
-                    if (!_irr1.IsInDB)
+                    if (!_irr.IsInDB)
                     {
                         throw new Exception(String.Format("Generic Receiver has name {0} which is not in database {1}", _irr1.Name, _irdb.DBName));
                     }
 
-                    _irr1.ExecuteCommand("Start", args.ToList());
-                    response.AddValue("IRCommand", _irr1.IRCommandName);
+                    _irr.ExecuteCommand("Start", args.ToList());
+                    response.AddValue("IRCommand", _irr.IRCommandName);
                     return true;
 
                 case "stop-recording":
                 case "list-ircodes":
                     if (cmd == "stop-recording")
                     {
-                        _irr1.ExecuteCommand("Stop");
+                        _irr.ExecuteCommand("Stop");
                     }
-                    response.AddValue("IRCommand", _irr1.IRCommandName);
-                    response.AddValue("IRCodes", _irr1.IRCodes.Select(i => i.ToString()).ToList());
-                    response.AddValue("UnknownIRCodes", _irr1.UnknownIRCodes.Select(i => i.ToString()).ToList());
+                    response.AddValue("IRCommand", _irr.IRCommandName);
+                    response.AddValue("IRCodes", _irr.IRCodes.Select(i => i.ToString()).ToList());
+                    response.AddValue("UnknownIRCodes", _irr.UnknownIRCodes.Select(i => i.ToString()).ToList());
                     return true;
 
                 case "save-ircodes":
-                    if (!_irr1.IsInDB)
+                    if (!_irr.IsInDB)
                     {
-                        throw new Exception(String.Format("{0} is not in database {1}", _irr1.Name, _irdb.DBName));
+                        throw new Exception(String.Format("{0} is not in database {1}", _irr.DeviceName, _irdb.DBName));
                     }
 
-                    if (_irr1.UnknownIRCodes.Count == 1 && args.Count > 0)
+                    if (_irr.UnknownIRCodes.Count == 1 && args.Count > 0)
                     {
-                        _irr1.processUnknownCode(args[0].ToString());
-                        response.AddValue("IRCommand", _irr1.IRCommandName);
-                        response.AddValue("IRCodes", _irr1.IRCodes.Select(i => i.ToString()).ToList());
+                        _irr.processUnknownCode(args[0].ToString());
+                        response.AddValue("IRCommand", _irr.IRCommandName);
+                        response.AddValue("IRCodes", _irr.IRCodes.Select(i => i.ToString()).ToList());
                         return true;
                     }
 
-                    _irr1.ExecuteCommand("Save");
-                    response.AddValue("IRCommand", _irr1.IRCommandName);
-                    response.AddValue("IRCodes", _irr1.IRCodes.Select(i => i.ToString()).ToList());
+                    _irr.ExecuteCommand("Save");
+                    response.AddValue("IRCommand", _irr.IRCommandName);
+                    response.AddValue("IRCodes", _irr.IRCodes.Select(i => i.ToString()).ToList());
                     return true;
             }
 
