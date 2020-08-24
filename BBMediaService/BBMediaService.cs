@@ -117,7 +117,7 @@ namespace BBMediaService
                     }
                     if (!_irr.IsInDB)
                     {
-                        throw new Exception(String.Format("Generic Receiver has name {0} which is not in database {1}", _irr1.Name, _irdb.DBName));
+                        throw new Exception(String.Format("Generic Receiver has name {0} which is not in database {1}", _irr.DeviceName, _irdb.DBName));
                     }
 
                     _irr.ExecuteCommand("Start", args.ToList());
