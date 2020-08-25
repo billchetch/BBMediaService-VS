@@ -40,19 +40,21 @@ namespace BBMediaService
 
         override protected void AddADMDevices(ArduinoDeviceManager adm, ADMMessage message)
         {
-            _irt = new IRGenericTransmitter("irt", "IRT", 3, ArduinoPin.BOARD_SPECIFIED, _irdb);
+            //Add generic devices ... can be used for testing or aqcuiring new ir codes
+            _irt = new IRGenericTransmitter("irt", "IRT", 7, ArduinoPin.BOARD_SPECIFIED, _irdb);
             adm.AddDevice(_irt);
 
-            _irr = new IRGenericReceiver("irr", "IRR", 4, _irdb);
+            _irr = new IRGenericReceiver("irr", "IRR", 8, _irdb);
             adm.AddDevice(_irr);
 
-            _sstv = new IRSamsungTV("sstv", 5, ArduinoPin.BOARD_SPECIFIED, _irdb);
+            //Add specific devices
+            _sstv = new IRSamsungTV("sstv", 4, ArduinoPin.BOARD_SPECIFIED, _irdb);
             adm.AddDevice(_sstv);
 
-            _lght1 = new IRLGHomeTheater("lght1", 6, ArduinoPin.BOARD_SPECIFIED, _irdb);
+            _lght1 = new IRLGHomeTheater("lght1", 5, ArduinoPin.BOARD_SPECIFIED, _irdb);
             adm.AddDevice(_lght1);
 
-            _lght2 = new IRLGHomeTheater("lght2", 7, ArduinoPin.BOARD_SPECIFIED, _irdb);
+            _lght2 = new IRLGHomeTheater("lght2", 6, ArduinoPin.BOARD_SPECIFIED, _irdb);
             adm.AddDevice(_lght2);
         }
 
