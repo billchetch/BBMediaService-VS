@@ -25,6 +25,7 @@ namespace BBMediaService
         public BBMediaService() : base("BBMS", "BBMSClient", "BBMediaService", "BBMediaServiceLog")
         {
             SupportedBoards = ArduinoDeviceManager.DEFAULT_BOARD_SET;
+            AllowedPorts = Properties.Settings.Default.AllowedPorts;
             try
             {
                 Tracing?.TraceEvent(TraceEventType.Information, 0, "Connecting to IR database...");
