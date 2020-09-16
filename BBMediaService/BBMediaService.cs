@@ -13,6 +13,17 @@ namespace BBMediaService
 {
     class BBMediaService : ADMService
     {
+        new public class MessageSchema : Chetch.Messaging.MessageSchema
+        {
+            public const String COMMAND_LIST_TRANSMITTERS = "list-transmitters";
+            public const String COMMAND_SET_TRANSMITTER = "set-transmitter";
+            public const String COMMAND_SET_RECEIVER = "set-receiver";
+            public const String COMMAND_START_RECORDING = "start-recording";
+            public const String COMMAND_STOP_RECORDING = "stop-recording";
+            public const String COMMAND_LIST_IRCODES = "list-ircodes";
+            public const String COMMAND_SAVE_IRCODES = "save-ircodes";
+        }
+
         IRGenericTransmitter _irt;
         IRGenericReceiver _irr;
 
@@ -20,9 +31,10 @@ namespace BBMediaService
         IRLGHomeTheater _lght1;
         IRLGHomeTheater _lght2;
 
+        private bool devicesConnected = false;
         private IRDB _irdb;
 
-        public BBMediaService() : base("BBMS", "BBMSClient", "BBMediaService", "BBMediaServiceLog")
+        public BBMediaService() : base("BBMedia", "BBMSClient", "BBMediaService", "BBMediaServiceLog") // base("BBMedia", "ADMTestServiceClient", "ADMTestService", "ADMTestServiceLog") //
         {
             SupportedBoards = ArduinoDeviceManager.DEFAULT_BOARD_SET;
             AllowedPorts = Properties.Settings.Default.AllowedPorts;
@@ -57,34 +69,37 @@ namespace BBMediaService
 
             _lght2 = new IRLGHomeTheater("lght2", 6, ArduinoPin.BOARD_SPECIFIED, _irdb);
             adm.AddDevice(_lght2);
+
+            devicesConnected = true; //we only expect one board
         }
 
-        public override void AddCommandHelp(List<string> commandHelp)
+        public override void AddCommandHelp()
         {
-            base.AddCommandHelp(commandHelp);
+            base.AddCommandHelp();
 
-            commandHelp.Add("list-transmitters:  Lists all IR transmitters in the IR database");
-            commandHelp.Add("set-transmitter:  Set generic transmitter to use commands for <database id>");
-            commandHelp.Add("set-receiver:  Set generic receiver to save commands for <database id>");
-            commandHelp.Add("start-recording:  Start recording IR input for <command>");
-            commandHelp.Add("stop-recording:  Stop recording IR input");
-            commandHelp.Add("list-ircodes:  List IR codes so far processed");
-            commandHelp.Add("save-ircodes:  Save recorded IR codes (can add <uknown?> to process unkonwn commands)");
+            AddCommandHelp(MessageSchema.COMMAND_LIST_TRANSMITTERS, "Lists all IR transmitters in the IR database");
+            AddCommandHelp(MessageSchema.COMMAND_SET_TRANSMITTER, "Set generic transmitter to use commands for <database id>");
+            AddCommandHelp(MessageSchema.COMMAND_SET_RECEIVER, "Set generic receiver to save commands for <database id>");
+            AddCommandHelp(MessageSchema.COMMAND_START_RECORDING, "Start recording IR input for <command>");
+            AddCommandHelp(MessageSchema.COMMAND_STOP_RECORDING, "Stop recording IR input");
+            AddCommandHelp(MessageSchema.COMMAND_LIST_IRCODES, "List IR codes so far processed");
+            AddCommandHelp(MessageSchema.COMMAND_SAVE_IRCODES, "Save recorded IR codes (can add <uknown?> to process unkonwn commands)");
         }
 
         override public bool HandleCommand(Connection cnn, Message message, String cmd, List<Object> args, Message response)
         {
-
             switch (cmd)
             {
-                case "list-transmitters":
+                case MessageSchema.COMMAND_LIST_TRANSMITTERS:
                     var devs = _irdb.SelectDevices();
                     var l = devs.Select(i => String.Format("{0}: {1} - {2} - {3}", i.ID, i["device_name"], i["device_type"], i["manufacturer"])).ToList();
                     response.AddValue("Transmitters", l);
                     return true;
 
-                case "set-transmitter":
-                case "set-receiver":
+                case MessageSchema.COMMAND_SET_TRANSMITTER:
+                case MessageSchema.COMMAND_SET_RECEIVER:
+                    if (!devicesConnected) throw new Exception("Devices not connected");
+
                     if (args.Count == 0)
                     {
                         throw new Exception("No database id provided");
@@ -96,7 +111,7 @@ namespace BBMediaService
                         if (dev.ID == id)
                         {
                             var name = dev["device_name"].ToString();
-                            if (cmd == "set-transmitter")
+                            if (cmd == MessageSchema.COMMAND_SET_TRANSMITTER)
                             {
                                 _irt.DeviceName = name;
                                 response.AddValue("GenericTransmitter", _irt.DeviceName);
@@ -111,7 +126,9 @@ namespace BBMediaService
                     }
                     return true;
 
-                case "start-recording":
+                case MessageSchema.COMMAND_START_RECORDING:
+                    if (!devicesConnected) throw new Exception("Devices not connected");
+
                     if (!_irr.IsConnected) throw new Exception(String.Format("Command {0} cannot be executed because receiver is not connected", cmd));
 
                     if (args.Count == 0)
@@ -127,9 +144,11 @@ namespace BBMediaService
                     response.AddValue("IRCommand", _irr.IRCommandName);
                     return true;
 
-                case "stop-recording":
-                case "list-ircodes":
-                    if (cmd == "stop-recording")
+                case MessageSchema.COMMAND_STOP_RECORDING:
+                case MessageSchema.COMMAND_LIST_IRCODES:
+                    if (!devicesConnected) throw new Exception("Devices not connected");
+
+                    if (cmd == MessageSchema.COMMAND_STOP_RECORDING)
                     {
                         _irr.ExecuteCommand("Stop");
                     }
@@ -138,7 +157,9 @@ namespace BBMediaService
                     response.AddValue("UnknownIRCodes", _irr.UnknownIRCodes.Select(i => i.ToString()).ToList());
                     return true;
 
-                case "save-ircodes":
+                case MessageSchema.COMMAND_SAVE_IRCODES:
+                    if (!devicesConnected) throw new Exception("Devices not connected");
+
                     if (!_irr.IsInDB)
                     {
                         throw new Exception(String.Format("{0} is not in database {1}", _irr.DeviceName, _irdb.DBName));
