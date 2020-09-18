@@ -54,9 +54,6 @@ namespace BBMediaService
         override protected void AddADMDevices(ArduinoDeviceManager adm, ADMMessage message)
         {
             //Add generic devices ... can be used for testing or aqcuiring new ir codes
-            _irt = new IRGenericTransmitter("irt", "IRT", 7, ArduinoPin.BOARD_SPECIFIED, _irdb);
-            adm.AddDevice(_irt);
-
             _irr = new IRGenericReceiver("irr", "IRR", 8, _irdb);
             adm.AddDevice(_irr);
 
