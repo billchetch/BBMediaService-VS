@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Chetch.Services;
-using Chetch.Arduino;
-using Chetch.Arduino.Devices.Infrared;
+using Chetch.Arduino2;
+using Chetch.Arduino2.Devices.Infrared;
 using Chetch.Messaging;
 using System.Diagnostics;
 
@@ -24,6 +24,7 @@ namespace BBMediaService
             public const String COMMAND_SAVE_IRCODES = "save-ircodes";
         }
 
+        ArduinoDeviceManager _adm;
         IRGenericTransmitter _irt;
         IRGenericReceiver _irr;
 
@@ -34,10 +35,8 @@ namespace BBMediaService
         private bool devicesConnected = false;
         private IRDB _irdb;
 
-        public BBMediaService() : base("BBMedia", "BBMSClient", "BBMediaService", "BBMediaServiceLog") // base("BBMedia", "ADMTestServiceClient", "ADMTestService", "ADMTestServiceLog") //
+        public BBMediaService(bool test = false) : base("BBMedia", test ? null : "BBMSClient", "BBMediaService", test ? null : "BBMediaServiceLog")
         {
-            SupportedBoards = ArduinoDeviceManager.DEFAULT_BOARD_SET;
-            AllowedPorts = Properties.Settings.Default.AllowedPorts;
             try
             {
                 Tracing?.TraceEvent(TraceEventType.Information, 0, "Connecting to IR database...");
@@ -51,23 +50,28 @@ namespace BBMediaService
             }
         }
 
-        override protected void AddADMDevices(ArduinoDeviceManager adm, ADMMessage message)
+        protected override bool CreateADMs()
         {
+            Tracing?.TraceEvent(TraceEventType.Information, 0, "Adding ADM and devices...");
+            _adm = ArduinoDeviceManager.Create(ArduinoSerialConnection.BOARD_UNO, 115200, 64, 64);
+
             //Add generic devices ... can be used for testing or aqcuiring new ir codes
             _irr = new IRGenericReceiver("irr", "IRR", 8, _irdb);
-            adm.AddDevice(_irr);
+            _adm.AddDevice(_irr);
 
             //Add specific devices
             _sstv = new IRSamsungTV("sstv", 4, ArduinoPin.BOARD_SPECIFIED, _irdb);
-            adm.AddDevice(_sstv);
+            _adm.AddDevice(_sstv);
 
             _lght1 = new IRLGHomeTheater("lght1", 5, ArduinoPin.BOARD_SPECIFIED, _irdb);
-            adm.AddDevice(_lght1);
+            _adm.AddDevice(_lght1);
 
             _lght2 = new IRLGHomeTheater("lght2", 6, ArduinoPin.BOARD_SPECIFIED, _irdb);
-            adm.AddDevice(_lght2);
+            _adm.AddDevice(_lght2);
 
-            devicesConnected = true; //we only expect one board
+            AddADM(_adm);
+
+            return true;
         }
 
         public override void AddCommandHelp()

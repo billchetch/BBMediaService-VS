@@ -36,8 +36,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Libraries\Application\Application\bin\Debug\Chetch.Application.dll</HintPath>
     </Reference>
-    <Reference Include="Chetch.Arduino">
-      <HintPath>..\..\..\Libraries\Arduino\Arduino\bin\Debug\Chetch.Arduino.dll</HintPath>
+    <Reference Include="Chetch.Arduino2">
+      <HintPath>..\..\..\Libraries\Arduino2\Arduino2\bin\Debug\Chetch.Arduino2.dll</HintPath>
     </Reference>
     <Reference Include="Chetch.Database">
       <HintPath>..\..\..\Libraries\Database\Database\bin\Debug\Chetch.Database.dll</HintPath>
@@ -65,9 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BBMediaService.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="BBMediaService.cs" />
     <Compile Include="BBMSInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
