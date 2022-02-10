@@ -60,14 +60,12 @@ namespace BBMediaService
             _adm.AddDevice(_irr);
 
             //Add specific devices
-            _sstv = new IRSamsungTV("sstv", 4, ArduinoPin.BOARD_SPECIFIED, _irdb);
-            _adm.AddDevice(_sstv);
-
-            _lght1 = new IRLGHomeTheater("lght1", 5, ArduinoPin.BOARD_SPECIFIED, _irdb);
-            _adm.AddDevice(_lght1);
-
-            _lght2 = new IRLGHomeTheater("lght2", 6, ArduinoPin.BOARD_SPECIFIED, _irdb);
-            _adm.AddDevice(_lght2);
+            _sstv = new IRSamsungTV("sstv", 4, 0, _irdb);
+            _lght1 = new IRLGHomeTheater("lght1", 5, 0, _irdb);
+            _lght2 = new IRLGHomeTheater("lght2", 6, 0, _irdb);
+            _irTransmitters = new IRTransmitterArray();
+            _irTransmitters.AddTran
+            _adm.AddDeviceGroup(_irTransmitters);
 
             AddADM(_adm);
 
