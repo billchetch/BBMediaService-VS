@@ -14,7 +14,10 @@
     <Setting Name="DBName" Type="System.String" Scope="Application">
       <Value Profile="(Default)">infrared</Value>
     </Setting>
-    <Setting Name="AllowedPorts" Type="System.String" Scope="Application">
+    <Setting Name="CMCConnectionString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CMCAuthToken" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

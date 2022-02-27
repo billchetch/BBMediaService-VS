@@ -11,7 +11,7 @@ using System.Diagnostics;
 
 namespace BBMediaService
 {
-    class BBMediaService : ADMService
+    public class BBMediaService : ADMService
     {
         new public class MessageSchema : Chetch.Messaging.MessageSchema
         {
@@ -31,8 +31,8 @@ namespace BBMediaService
         IRSamsungTV _sstv;
         IRLGHomeTheater _lght1;
         IRLGHomeTheater _lght2;
-
-        private bool devicesConnected = false;
+        
+        
         private IRDB _irdb;
 
         public BBMediaService(bool test = false) : base("BBMedia", test ? null : "BBMSClient", "BBMediaService", test ? null : "BBMediaServiceLog")
@@ -57,15 +57,12 @@ namespace BBMediaService
 
             //Add generic devices ... can be used for testing or aqcuiring new ir codes
             _irr = new IRGenericReceiver("irr", "IRR", 8, _irdb);
-            _adm.AddDevice(_irr);
 
             //Add specific devices
-            _sstv = new IRSamsungTV("sstv", 4, 0, _irdb);
-            _lght1 = new IRLGHomeTheater("lght1", 5, 0, _irdb);
-            _lght2 = new IRLGHomeTheater("lght2", 6, 0, _irdb);
-            _irTransmitters = new IRTransmitterArray();
-            _irTransmitters.AddTran
-            _adm.AddDeviceGroup(_irTransmitters);
+            _sstv = new IRSamsungTV("sstv", 4, _irdb);
+            _lght1 = new IRLGHomeTheater("lght1", 5, _irdb);
+            _lght2 = new IRLGHomeTheater("lght2", 6, _irdb);
+            _adm.AddDevices(_irr, _sstv, _lght1, _lght2);
 
             AddADM(_adm);
 
@@ -97,8 +94,6 @@ namespace BBMediaService
 
                 case MessageSchema.COMMAND_SET_TRANSMITTER:
                 case MessageSchema.COMMAND_SET_RECEIVER:
-                    if (!devicesConnected) throw new Exception("Devices not connected");
-
                     if (args.Count == 0)
                     {
                         throw new Exception("No database id provided");
@@ -126,9 +121,7 @@ namespace BBMediaService
                     return true;
 
                 case MessageSchema.COMMAND_START_RECORDING:
-                    if (!devicesConnected) throw new Exception("Devices not connected");
-
-                    if (!_irr.IsConnected) throw new Exception(String.Format("Command {0} cannot be executed because receiver is not connected", cmd));
+                    if (!_irr.IsReady) throw new Exception(String.Format("Command {0} cannot be executed because receiver is not ready", cmd));
 
                     if (args.Count == 0)
                     {
@@ -145,8 +138,6 @@ namespace BBMediaService
 
                 case MessageSchema.COMMAND_STOP_RECORDING:
                 case MessageSchema.COMMAND_LIST_IRCODES:
-                    if (!devicesConnected) throw new Exception("Devices not connected");
-
                     if (cmd == MessageSchema.COMMAND_STOP_RECORDING)
                     {
                         _irr.ExecuteCommand("Stop");
@@ -157,8 +148,6 @@ namespace BBMediaService
                     return true;
 
                 case MessageSchema.COMMAND_SAVE_IRCODES:
-                    if (!devicesConnected) throw new Exception("Devices not connected");
-
                     if (!_irr.IsInDB)
                     {
                         throw new Exception(String.Format("{0} is not in database {1}", _irr.DeviceName, _irdb.DBName));
