@@ -53,9 +53,9 @@ namespace BBMediaService.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("infrared")]
-        public string DBName {
+        public string IRDBName {
             get {
-                return ((string)(this["DBName"]));
+                return ((string)(this["IRDBName"]));
             }
         }
         
@@ -77,6 +77,15 @@ namespace BBMediaService.Properties {
             }
             set {
                 this["CMCAuthToken"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("media_service")]
+        public string BBMediaServiceDBName {
+            get {
+                return ((string)(this["BBMediaServiceDBName"]));
             }
         }
     }

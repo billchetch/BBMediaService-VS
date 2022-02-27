@@ -24,23 +24,31 @@ namespace BBMediaService
             public const String COMMAND_SAVE_IRCODES = "save-ircodes";
         }
 
-        ArduinoDeviceManager _adm;
-        IRGenericTransmitter _irt;
-        IRGenericReceiver _irr;
+        private ArduinoDeviceManager _adm;
+        private IRGenericTransmitter _irt;
+        private IRGenericReceiver _irr;
 
-        IRSamsungTV _sstv;
-        IRLGHomeTheater _lght1;
-        IRLGHomeTheater _lght2;
+        private IRSamsungTV _sstv;
+        private IRLGHomeTheater _lght1;
+        private IRLGHomeTheater _lght2;
         
         
         private IRDB _irdb;
+        private BBMediaServiceDB _bbmsdb;
 
         public BBMediaService(bool test = false) : base("BBMedia", test ? null : "BBMSClient", "BBMediaService", test ? null : "BBMediaServiceLog")
         {
             try
             {
+                Tracing?.TraceEvent(TraceEventType.Information, 0, "Connecting to media service database...");
+                _bbmsdb = BBMediaServiceDB.Create(Properties.Settings.Default, "BBMediaServiceDBName");
+
+                Tracing?.TraceEvent(TraceEventType.Information, 0, "Setting service DB to {0} and settings to default", _bbmsdb.DBName);
+                ServiceDB = _bbmsdb;
+                Settings = Properties.Settings.Default;
+
                 Tracing?.TraceEvent(TraceEventType.Information, 0, "Connecting to IR database...");
-                _irdb = IRDB.Create(Properties.Settings.Default, IRDB.IREncoding.HEX);
+                _irdb = IRDB.Create(Properties.Settings.Default, IRDB.IREncoding.HEX, "IRDBName");
                 Tracing?.TraceEvent(TraceEventType.Information, 0, "Connected to IR database");
             }
             catch (Exception e)

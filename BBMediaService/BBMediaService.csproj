@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BBMediaService.cs" />
+    <Compile Include="BBMediaServiceDB.cs" />
     <Compile Include="BBMSInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
