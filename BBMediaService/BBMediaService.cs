@@ -22,7 +22,14 @@ namespace BBMediaService
             public const String COMMAND_STOP_RECORDING = "stop-recording";
             public const String COMMAND_LIST_IRCODES = "list-ircodes";
             public const String COMMAND_SAVE_IRCODES = "save-ircodes";
+            public const String COMMAND_TEST_REPEAT = "test-repeat";
         }
+
+        public const int GENERIC_RECEIVER_PIN = 8;
+
+        public const int SSTV_TRANSMIT_PIN = 4;
+        public const int LGHT1_TRANSMIT_PIN = 3;
+        public const int LGHT2_TRANSMIT_PIN = 5;
 
         private ArduinoDeviceManager _adm;
         private IRGenericTransmitter _irt;
@@ -36,7 +43,7 @@ namespace BBMediaService
         private IRDB _irdb;
         private BBMediaServiceDB _bbmsdb;
 
-        public BBMediaService(bool test = false) : base("BBMedia", test ? null : "BBMSClient", "BBMediaService", test ? null : "BBMediaServiceLog")
+        public BBMediaService(bool test = false) : base("BBMedia", test ? null : "BBMSClient", test ? "ADMServiceTest" : "BBMediaService", test ? null : "BBMediaServiceLog")
         {
             try
             {
@@ -64,13 +71,13 @@ namespace BBMediaService
             _adm = ArduinoDeviceManager.Create(ArduinoSerialConnection.BOARD_UNO, 115200, 64, 64);
 
             //Add generic devices ... can be used for testing or aqcuiring new ir codes
-            _irr = new IRGenericReceiver("irr", "IRR", 8, _irdb);
+            _irr = new IRGenericReceiver("irr", "IRR", GENERIC_RECEIVER_PIN, _irdb);
 
             //Add specific devices
-            _sstv = new IRSamsungTV("sstv", 4, _irdb);
-            _lght1 = new IRLGHomeTheater("lght1", 5, _irdb);
-            _lght2 = new IRLGHomeTheater("lght2", 6, _irdb);
-            _adm.AddDevices(_irr, _sstv, _lght1, _lght2);
+            _sstv = new IRSamsungTV("sstv", SSTV_TRANSMIT_PIN, _irdb);
+            _lght1 = new IRLGHomeTheater("lght1", LGHT1_TRANSMIT_PIN, _irdb);
+            _lght2 = new IRLGHomeTheater("lght2", LGHT2_TRANSMIT_PIN, _irdb);
+            _adm.AddDevices(_sstv, _lght1, _lght2);
 
             AddADM(_adm);
 
@@ -88,6 +95,7 @@ namespace BBMediaService
             AddCommandHelp(MessageSchema.COMMAND_STOP_RECORDING, "Stop recording IR input");
             AddCommandHelp(MessageSchema.COMMAND_LIST_IRCODES, "List IR codes so far processed");
             AddCommandHelp(MessageSchema.COMMAND_SAVE_IRCODES, "Save recorded IR codes (can add <uknown?> to process unkonwn commands)");
+            AddCommandHelp(MessageSchema.COMMAND_TEST_REPEAT, "Test repeatedly sending an IR command to a receiver");
         }
 
         override public bool HandleCommand(Connection cnn, Message message, String cmd, List<Object> args, Message response)
@@ -172,6 +180,20 @@ namespace BBMediaService
                     _irr.ExecuteCommand("Save");
                     response.AddValue("IRCommand", _irr.IRCommandName);
                     response.AddValue("IRCodes", _irr.IRCodes.Select(i => i.ToString()).ToList());
+                    return true;
+
+                case MessageSchema.COMMAND_TEST_REPEAT:
+                    for (int i = 0; i < 50; i++)
+                    {
+                        _lght1.ExecuteCommand("Volume Up");
+                        System.Threading.Thread.Sleep(50);
+                    }
+                    System.Threading.Thread.Sleep(1000);
+                    for (int i = 0; i < 50; i++)
+                    {
+                        _lght1.ExecuteCommand("Volume Down");
+                        System.Threading.Thread.Sleep(50);
+                    }
                     return true;
             }
 
