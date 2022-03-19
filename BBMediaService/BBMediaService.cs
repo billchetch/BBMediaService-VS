@@ -25,6 +25,7 @@ namespace BBMediaService
             public const String COMMAND_TEST_REPEAT = "test-repeat";
         }
 
+        public const int GENERIC_TRANSMIT_PIN = 7;
         public const int GENERIC_RECEIVER_PIN = 8;
 
         public const int SSTV_TRANSMIT_PIN = 4;
@@ -38,7 +39,6 @@ namespace BBMediaService
         private IRSamsungTV _sstv;
         private IRLGHomeTheater _lght1;
         private IRLGHomeTheater _lght2;
-        
         
         private IRDB _irdb;
         private BBMediaServiceDB _bbmsdb;
