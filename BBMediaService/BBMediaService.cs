@@ -23,6 +23,8 @@ namespace BBMediaService
             public const String COMMAND_LIST_IRCODES = "list-ircodes";
             public const String COMMAND_SAVE_IRCODES = "save-ircodes";
             public const String COMMAND_TEST_REPEAT = "test-repeat";
+            public const String COMMAND_KEY_PRESS = "key-press";
+            public const String COMMAND_OPEN_MEDIA_PLAYER = "open-mp";
         }
 
         public const int GENERIC_TRANSMIT_PIN = 7;
@@ -194,6 +196,20 @@ namespace BBMediaService
                         _lght1.ExecuteCommand("Volume Down");
                         System.Threading.Thread.Sleep(50);
                     }
+                    return true;
+
+                case MessageSchema.COMMAND_KEY_PRESS:
+                    if (args.Count == 0)
+                    {
+                        throw new Exception("No key value provided");
+                    }
+                    var key = System.Convert.ToInt64(args[0]);
+                    
+
+                    return true;
+
+                case MessageSchema.COMMAND_OPEN_MEDIA_PLAYER:
+
                     return true;
             }
 
