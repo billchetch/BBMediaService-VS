@@ -49,6 +49,8 @@ namespace BBMediaService
         {
             try
             {
+                AboutSummary = "BB Media Service v. 1.0.1";
+
                 Tracing?.TraceEvent(TraceEventType.Information, 0, "Connecting to media service database...");
                 _bbmsdb = BBMediaServiceDB.Create(Properties.Settings.Default, "BBMediaServiceDBName");
 
