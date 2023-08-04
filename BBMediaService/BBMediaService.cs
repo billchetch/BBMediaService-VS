@@ -35,6 +35,17 @@ namespace BBMediaService
         public const int LGHT2_TRANSMIT_PIN = 5;
 
         private ArduinoDeviceManager _adm;
+        public ArduinoDeviceManager ADM
+        {
+            get { return _adm; }
+            set
+            {
+                if (_adm != null) throw new Exception("ADM already present");
+                _adm = value;
+            }
+        }
+
+
         private IRGenericTransmitter _irt;
         private IRGenericReceiver _irr;
 
@@ -69,10 +80,19 @@ namespace BBMediaService
             }
         }
 
-        protected override bool CreateADMs()
+        protected override void CreateADMs()
         {
             Tracing?.TraceEvent(TraceEventType.Information, 0, "Adding ADM and devices...");
-            _adm = ArduinoDeviceManager.Create(ArduinoSerialConnection.BOARD_UNO, 115200, 64, 64);
+            if (_adm == null)
+            {
+                _adm = ArduinoDeviceManager.Create(ArduinoSerialConnection.BOARD_ARDUINO, 115200, 64, 64);
+                Tracing?.TraceEvent(TraceEventType.Information, 0, "Created USB connected ADM {0}", _adm.UID);
+            }
+            else
+            {
+                Tracing?.TraceEvent(TraceEventType.Information, 0, "Use supplied ADM {0}", _adm.UID);
+            }
+
 
             //Add generic devices ... can be used for testing or aqcuiring new ir codes
             _irr = new IRGenericReceiver("irr", "IRR", GENERIC_RECEIVER_PIN, _irdb);
@@ -84,8 +104,6 @@ namespace BBMediaService
             _adm.AddDevices(_sstv, _lght1, _lght2);
 
             AddADM(_adm);
-
-            return true;
         }
 
         public override void AddCommandHelp()
